@@ -24,30 +24,97 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* globals.css (append) */
+.layout-body {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #071033 0%, #0f172a 100%);
+  color: #fff;
+  position: relative;
+}
+
+
+.app-main {
+  padding: 96px 24px 24px; /* top padding so top nav doesn't overlap content */
+}
+
+
+
+/* globals.css (excerpt) */
+:root {
+  --app-header: #121214;
+  --dock-height: 96px; /* change to suit GooeyNav's visual size */
+  --dock-max-width: 1100px;
+}
+
+/* body/layout basics (keep your existing styles) */
 .layout-body {
   margin: 0;
   padding: 0;
-  background: #0f0f10;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #0f0f10;
+  color: #fff;
 }
 
-/* Top menu bar */
+/* header should be taller to contain the dock area */
 .layout-header {
+  position: relative; /* needed for absolute-positioned dock inside */
+  background: var(--app-header);
+  height: calc(var(--dock-height) + 32px); /* gives room above/below the dock */
+  display: flex;
+  align-items: flex-start; /* top align so inner header content won't collide */
+  justify-content: center;
+  padding: 8px 16px 24px; /* extra bottom padding to make room for dock */
+  box-sizing: border-box;
+  z-index: 50;
+}
+
+/* header inner (brand / top menu) */
+.header-inner {
   width: 100%;
-  height: 64px;             /* Adjust height if needed */
+  max-width: var(--dock-max-width);
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  background: #121214;
-  box-sizing: border-box;
+  justify-content: space-between;
+  pointer-events: none; /* let dock buttons get clicks if they overlap; enable specific items if needed */
+}
+.header-inner .brand {
+  pointer-events: auto; /* enable clicks on brand */
+  font-weight: 600;
 }
 
-/* Page content below header */
+/* top dock wrapper — absolutely positioned and centered */
+.top-dock {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -12px; /* lift it slightly below header edge to create floating effect */
+  width: min(92%, var(--dock-max-width));
+  height: var(--dock-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 60; /* above header-inner and content */
+  /* optional shadow for floating effect */
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.45));
+}
+
+/* inside the GooeyNav wrapper — ensure it fills the dock area */
+.gooey-dock-wrap {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;          /* optional, useful for alignment inside wrapper */
+  z-index: 9999;
+}
+
+/* content area below header */
 .layout-content {
   flex: 1;
   padding: 24px;
-  color: white;
   box-sizing: border-box;
+  margin-top: 24px; /* ensure content doesn't hide under dock */
 }
