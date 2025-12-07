@@ -41,7 +41,7 @@ body {
 
 /* globals.css (excerpt) */
 :root {
-  --app-header: #121214;
+  --app-header: #000000;
   --dock-height: 96px; /* change to suit GooeyNav's visual size */
   --dock-max-width: 1100px;
 }
@@ -53,14 +53,14 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #0f0f10;
+  background: #000000;
   color: #fff;
 }
 
 /* header should be taller to contain the dock area */
 .layout-header {
   position: relative; /* needed for absolute-positioned dock inside */
-  background: var(--app-header);
+  background: transparent;
   height: calc(var(--dock-height) + 32px); /* gives room above/below the dock */
   display: flex;
   align-items: flex-start; /* top align so inner header content won't collide */
@@ -84,22 +84,7 @@ body {
   font-weight: 600;
 }
 
-/* top dock wrapper — absolutely positioned and centered */
-.top-dock {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -12px; /* lift it slightly below header edge to create floating effect */
-  width: min(92%, var(--dock-max-width));
-  height: var(--dock-height);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: auto;
-  z-index: 60; /* above header-inner and content */
-  /* optional shadow for floating effect */
-  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.45));
-}
+
 
 /* inside the GooeyNav wrapper — ensure it fills the dock area */
 .gooey-dock-wrap {

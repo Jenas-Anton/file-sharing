@@ -124,7 +124,7 @@
   position: absolute;
   inset: -75px;
   z-index: -2;
-
+  background: black;
 }
 
 .gooey-nav-container .effect.filter::after {

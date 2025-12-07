@@ -1,6 +1,7 @@
-// GooeyNav.js
+// app/components/GooeyNav/GooeyNav.js
 "use client";
 import React, { useRef, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import "./GooeyNav.css";
 
 const GooeyNav = ({
@@ -13,6 +14,7 @@ const GooeyNav = ({
   colors = [1, 2, 3, 1, 2, 3, 1, 4],
   initialActiveIndex = 0,
 }) => {
+  const router = useRouter();
   const containerRef = useRef(null);
   const navRef = useRef(null);
   const filterRef = useRef(null);
@@ -40,8 +42,7 @@ const GooeyNav = ({
 
   const makeParticles = (element) => {
     if (!element) return;
-    console.log("[GooeyNav] makeParticles called", { element, particleCount });
-
+    // set bubble time on container for CSS usage
     const d = particleDistances;
     const r = particleR;
     const bubbleTime = animationTime * 2 + timeVariance;
@@ -70,7 +71,6 @@ const GooeyNav = ({
         particle.style.setProperty("--end-y", `${p.end[1]}px`);
         particle.style.setProperty("--time", `${p.time}ms`);
         particle.style.setProperty("--scale", `${p.scale}`);
-        // Accept hex string or numeric index
         const colorValue = typeof p.color === "string" ? p.color : `var(--color-${p.color}, white)`;
         particle.style.setProperty("--color", colorValue);
         particle.style.setProperty("--rotate", `${p.rotate}deg`);
@@ -111,38 +111,48 @@ const GooeyNav = ({
     textRef.current.textContent = element.textContent || element.innerText || "";
   };
 
-  const handleClick = (e, index) => {
+  // handle click: run animation, then navigate (SPA)
+  const handleClick = (e, index, href) => {
+    // prevent default so we can control navigation
     e.preventDefault();
+
     const anchor = e.currentTarget;
     const liEl = anchor.closest("li");
-    console.log("[GooeyNav] nav item clicked", { index, liEl });
     if (!liEl) return;
 
-    if (activeIndex === index) return;
-    setActiveIndex(index);
-    updateEffectPosition(liEl);
+    // animate only if index changed (but still navigate regardless)
+    if (activeIndex !== index) {
+      setActiveIndex(index);
+      updateEffectPosition(liEl);
 
-    if (textRef.current) {
-      textRef.current.classList.remove("active");
-      void textRef.current.offsetWidth;
-      textRef.current.classList.add("active");
+      if (textRef.current) {
+        textRef.current.classList.remove("active");
+        void textRef.current.offsetWidth;
+        textRef.current.classList.add("active");
+      }
+
+      if (filterRef.current) {
+        makeParticles(filterRef.current);
+      }
     }
 
-    if (filterRef.current) {
-      makeParticles(filterRef.current);
+    // perform SPA navigation
+    if (href) {
+      router.push(href);
     }
   };
 
   // keyboard handling for accessibility
-  const handleKeyDown = (e, index) => {
+  const handleKeyDown = (e, index, href) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      handleClick(e, index);
+      // pass the same event object (currentTarget will be the anchor)
+      handleClick(e, index, href);
     }
   };
 
   useEffect(() => {
-    // ensure effect position updates on mount and when activeIndex changes
+    // position effect on mount and when activeIndex changes
     const allLis = navRef.current?.querySelectorAll("li") || [];
     const activeLi = allLis[activeIndex];
     if (activeLi) updateEffectPosition(activeLi);
@@ -155,6 +165,7 @@ const GooeyNav = ({
     });
     ro.observe(containerRef.current);
     return () => ro.disconnect();
+    // `items.length` included to reposition if items change
   }, [activeIndex, items.length]);
 
   return (
@@ -165,8 +176,8 @@ const GooeyNav = ({
             <li key={idx} className={activeIndex === idx ? "active" : ""}>
               <a
                 href={item.href || "#"}
-                onClick={(e) => handleClick(e, idx)}
-                onKeyDown={(e) => handleKeyDown(e, idx)}
+                onClick={(e) => handleClick(e, idx, item.href)}
+                onKeyDown={(e) => handleKeyDown(e, idx, item.href)}
                 tabIndex={0}
                 aria-current={activeIndex === idx ? "page" : undefined}
               >
